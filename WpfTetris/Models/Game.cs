@@ -17,6 +17,14 @@ namespace WpfTetris.Models
         /// </summary>
         public GameResult Result { get; } = new GameResult();
 
+        public enum GameMode
+        {
+            NORMAL,
+            CRAZY,
+        }
+
+        public GameMode Mode { get; set; } = GameMode.NORMAL;
+
 
         /// <summary>
         /// フィールドを取得します。
@@ -67,9 +75,27 @@ namespace WpfTetris.Models
                 }
 
                 //--- 新しいテトリミノを設定
-                var kind = this.nextTetrimino.Value;
-                this.nextTetrimino.Value = Tetrimino.RandomKind();
-                this.Field.Tetrimino.Value = Tetrimino.Create(kind);
+                if(Mode == GameMode.CRAZY)
+                {
+                    var kind = this.nextTetrimino.Value;
+                    if (this.nextTetrimino.Value == TetriminoKind.NEXTRANDOM)
+                    {
+                        TetriminoExtensions.SetRandomPattern(); 
+                        this.nextTetrimino.Value = TetriminoKind.RANDOM;
+                    }
+                    else
+                    {
+                        TetriminoExtensions.SetNextRandomPattern();
+                        this.nextTetrimino.Value = TetriminoKind.NEXTRANDOM;
+                    }
+                    this.Field.Tetrimino.Value = Tetrimino.Create(kind);
+                }
+                else
+                {
+                    var kind = this.nextTetrimino.Value;    
+                    this.nextTetrimino.Value = Tetrimino.RandomKind();
+                    this.Field.Tetrimino.Value = Tetrimino.Create(kind);
+                }
             });
             this.Field.LastRemovedRowCount.Subscribe(this.Result.AddRowCount);
         }
@@ -86,8 +112,18 @@ namespace WpfTetris.Models
                 return;
 
             this.PreviousCount = 0;
-            this.nextTetrimino.Value = Tetrimino.RandomKind();
-            this.Field.Activate(Tetrimino.RandomKind());
+            if (Mode == GameMode.CRAZY)
+            {
+                TetriminoExtensions.SetRandomPattern();
+                this.nextTetrimino.Value = TetriminoKind.RANDOM;
+                //TetriminoExtensions.SetRandomPattern();
+                this.Field.Activate(TetriminoKind.RANDOM);
+            }
+            else
+            {
+                this.nextTetrimino.Value = Tetrimino.RandomKind();
+                this.Field.Activate(Tetrimino.RandomKind());
+            }
             this.Result.Clear();
         }
         #endregion

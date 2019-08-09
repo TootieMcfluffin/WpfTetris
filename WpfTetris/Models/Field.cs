@@ -20,7 +20,7 @@ namespace WpfTetris.Models
         /// <summary>
         /// 行数を表します。この値は定数です。
         /// </summary>
-        public const byte RowCount = 24;
+        public const byte RowCount = 20;
 
 
         /// <summary>

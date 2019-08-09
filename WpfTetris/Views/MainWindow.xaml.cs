@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using WpfTetris.Extensions;
 using WpfTetris.Models;
 using WpfTetris.ViewModels;
@@ -15,17 +16,17 @@ namespace WpfTetris.Views
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : NavigationWindow
     {
         #region プロパティ
         /// <summary>
         /// ゲームを取得または設定します。
         /// </summary>
-        private GameViewModel Game
-        {
-            get { return this.DataContext as GameViewModel; }
-            set { this.DataContext = value; }
-        }
+        //private GameViewModel Game
+        //{
+        //    //get { return this.DataContext as GameViewModel; }
+        //    //set { this.DataContext = value; }
+        //}
         #endregion
 
 
@@ -35,12 +36,12 @@ namespace WpfTetris.Views
         /// </summary>
         public MainWindow()
         {
-            this.Game = new GameViewModel();
-            this.InitializeComponent();
-            This.SetupField(this.field, this.Game.Field.Cells, 30);
-            This.SetupField(this.nextField, this.Game.NextField.Cells, 18);
-            this.AttachEvents();
-            this.Game.Play();
+            //this.Game = new GameViewModel();
+            //this.InitializeComponent();
+            //This.SetupField(this.field, this.Game.Field.Cells, 30);
+            //This.SetupField(this.nextField, this.Game.NextField.Cells, 18);
+            //this.AttachEvents();
+            //this.Game.Play();
         }
         #endregion
 
@@ -85,23 +86,23 @@ namespace WpfTetris.Views
         /// <summary>
         /// イベントの関連付けを行います。
         /// </summary>
-        private void AttachEvents()
-        {
-            this.KeyDown += (s, e) =>
-            {
-                switch (e.Key)
-                {
-                    case Key.Z:      this.Game.Field.RotationTetrimino(RotationDirection.Left);   break;
-                    case Key.X:      this.Game.Field.RotationTetrimino(RotationDirection.Right);  break;
-                    case Key.Up:     this.Game.Field.RotationTetrimino(RotationDirection.Right);  break;
-                    case Key.Right:  this.Game.Field.MoveTetrimino(MoveDirection.Right);  break;
-                    case Key.Down:   this.Game.Field.MoveTetrimino(MoveDirection.Down);   break;
-                    case Key.Left:   this.Game.Field.MoveTetrimino(MoveDirection.Left);   break;
-                    case Key.Escape: this.Game.Play();  break;
-                    case Key.Space:  this.Game.Field.ForceFixTetrimino();  break;
-                }
-            };
-        }
+        //private void AttachEvents()
+        //{
+        //    this.KeyDown += (s, e) =>
+        //    {
+        //        switch (e.Key)
+        //        {
+        //            case Key.Z:      this.Game.Field.RotationTetrimino(RotationDirection.Left);   break;
+        //            case Key.X:      this.Game.Field.RotationTetrimino(RotationDirection.Right);  break;
+        //            case Key.Up:     this.Game.Field.RotationTetrimino(RotationDirection.Right);  break;
+        //            case Key.Right:  this.Game.Field.MoveTetrimino(MoveDirection.Right);  break;
+        //            case Key.Down:   this.Game.Field.MoveTetrimino(MoveDirection.Down);   break;
+        //            case Key.Left:   this.Game.Field.MoveTetrimino(MoveDirection.Left);   break;
+        //            case Key.Escape: this.Game.Play();  break;
+        //            case Key.Space:  this.Game.Field.ForceFixTetrimino();  break;
+        //        }
+        //    };
+        //}
         #endregion
     }
 }
