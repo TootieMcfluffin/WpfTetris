@@ -67,5 +67,17 @@ namespace WpfTetris.ViewModels
         /// </summary>
         public void Play() => this.Game.Play();
         #endregion
+
+        public void SetToCrazy(bool setCrazy)
+        {
+            if(setCrazy)
+            {
+                Game.Mode = Game.GameMode.CRAZY;
+            }
+            else
+            {
+                Game.Mode = Game.GameMode.NORMAL;
+            }
+        }
     }
 }

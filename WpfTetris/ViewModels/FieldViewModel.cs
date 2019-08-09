@@ -48,7 +48,6 @@ namespace WpfTetris.ViewModels
         public FieldViewModel(Field field)
         {
             this.Field = field;
-
             //--- 描画するセルを準備
             this.Cells = new CellViewModel[Field.RowCount, Field.ColumnCount];
             foreach (var item in this.Cells.WithIndex())

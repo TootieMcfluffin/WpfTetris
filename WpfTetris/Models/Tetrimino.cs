@@ -55,6 +55,7 @@ namespace WpfTetris.Models
         {
             this.Kind = kind;
             this.Position = kind.InitialPosition();
+            //TetriminoExtensions.SetRandomPattern();
             this.Blocks = kind.CreateBlock(this.Position);
         }
         #endregion
@@ -68,7 +69,12 @@ namespace WpfTetris.Models
         public static TetriminoKind RandomKind()
         {
             var length = Enum.GetValues(typeof(TetriminoKind)).Length;
-            return (TetriminoKind)RandomProvider.ThreadRandom.Next(length);
+            return (TetriminoKind)RandomProvider.ThreadRandom.Next(length - 2);
+        }
+
+        public static TetriminoKind GetTetriminoKindRandom()
+        {
+            return TetriminoKind.RANDOM;
         }
 
 
@@ -78,6 +84,7 @@ namespace WpfTetris.Models
         /// <returns>インスタンス</returns>
         public static This Create(TetriminoKind? kind = null)
         {
+            //TetriminoExtensions.SetRandomPattern();
             kind = kind ?? This.RandomKind();
             return new This(kind.Value);
         }
@@ -133,13 +140,13 @@ namespace WpfTetris.Models
             var count = Enum.GetValues(typeof(Direction)).Length;
             var delta = (rotationDirection == RotationDirection.Right) ? 1 : -1;
             var direction = (int)this.Direction + delta;
-            if (direction < 0)      direction += count;
+            if (direction < 0) direction += count;
             if (direction >= count) direction %= count;
 
             //--- 横方向に対するローテーション補正 (Super Rotation)
-            var adjustPattern   = this.Kind == TetriminoKind.I
-                                ? new [] { 0, 1, -1, 2, -2 }  //--- 形状が I の場合は最大 2 セルの補正
-                                : new [] { 0, 1, -1 };  //--- それ以外の場合は 1 セル補正
+            var adjustPattern = this.Kind == TetriminoKind.I
+                                ? new[] { 0, 1, -1, 2, -2 }  //--- 形状が I の場合は最大 2 セルの補正
+                                : new[] { 0, 1, -1 };  //--- それ以外の場合は 1 セル補正
             foreach (var adjust in adjustPattern)
             {
                 //--- 向きに合わせたブロックを生成

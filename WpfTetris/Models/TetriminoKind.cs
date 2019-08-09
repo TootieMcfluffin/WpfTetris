@@ -67,6 +67,20 @@ namespace WpfTetris.Models
         /// <para>□□□□</para>
         /// </summary>
         T,
+
+        /// <summary>
+        /// <para>⍰⍰⍰</para>
+        /// <para>⍰⍰⍰</para>
+        /// <para>⍰⍰⍰</para>
+        /// </summary>
+        RANDOM,
+
+        /// <summary>
+        /// <para>⍰⍰⍰</para>
+        /// <para>⍰⍰⍰</para>
+        /// <para>⍰⍰⍰</para>
+        /// </summary>
+        NEXTRANDOM,
     }
 
 
@@ -76,6 +90,10 @@ namespace WpfTetris.Models
     /// </summary>
     public static class TetriminoExtensions
     {
+        private static Random rand = new Random();
+        public static int[,] CurrentRandomPatternUp { get; set; }
+        public static int[,] NextRandomPatternUp { get; set; }
+
         /// <summary>
         /// ブロックの色を取得します。
         /// </summary>
@@ -92,6 +110,8 @@ namespace WpfTetris.Models
                 case TetriminoKind.J:   return Colors.Blue;
                 case TetriminoKind.L:   return Colors.Orange;
                 case TetriminoKind.T:   return Colors.Purple;
+                case TetriminoKind.RANDOM: return Colors.Violet;
+                case TetriminoKind.NEXTRANDOM: return Colors.Coral;
             }
             throw new InvalidOperationException("Unknown Tetrimino");
         }
@@ -114,6 +134,8 @@ namespace WpfTetris.Models
                 case TetriminoKind.J:
                 case TetriminoKind.L:
                 case TetriminoKind.T:   length = 3; break;
+                case TetriminoKind.RANDOM: length = 3; break;
+                case TetriminoKind.NEXTRANDOM: length = 3; break;
                 default:    throw new InvalidOperationException("Unknown Tetrimino");
             }
 
@@ -408,6 +430,53 @@ namespace WpfTetris.Models
                     }
                     break;
                 #endregion
+
+                #region RANDOM
+                case TetriminoKind.RANDOM:
+                    switch(direction)
+                    {
+                        case Direction.Up:
+                            pattern = CurrentRandomPatternUp;
+                            break;
+                        case Direction.Right:
+                            pattern = RotatePatternRight(CurrentRandomPatternUp);
+                            break;
+                        case Direction.Down:
+                            pattern = RotatePatternRight(CurrentRandomPatternUp);
+                            pattern = RotatePatternRight(pattern);
+                            break;
+                        case Direction.Left:
+                            pattern = RotatePatternRight(CurrentRandomPatternUp);
+                            pattern = RotatePatternRight(pattern);
+                            pattern = RotatePatternRight(pattern);
+                            break;
+                    }
+                    break;
+                #endregion
+
+
+                #region NEXTRANDOM
+                case TetriminoKind.NEXTRANDOM:
+                    switch (direction)
+                    {
+                        case Direction.Up:
+                            pattern = NextRandomPatternUp;
+                            break;
+                        case Direction.Right:
+                            pattern = RotatePatternRight(NextRandomPatternUp);
+                            break;
+                        case Direction.Down:
+                            pattern = RotatePatternRight(NextRandomPatternUp);
+                            pattern = RotatePatternRight(pattern);
+                            break;
+                        case Direction.Left:
+                            pattern = RotatePatternRight(NextRandomPatternUp);
+                            pattern = RotatePatternRight(pattern);
+                            pattern = RotatePatternRight(pattern);
+                            break;
+                    }
+                    break;
+                    #endregion
             }
 
             //--- どれにも当てはまらなかった
@@ -422,6 +491,106 @@ namespace WpfTetris.Models
                     .Select(x => new Position(x.Row + offset.Row, x.Column + offset.Column))  //--- 絶対座標変換
                     .Select(x => new Block(color, x))
                     .ToArray();
+        }
+
+        private static int[,] RotatePatternRight(int[,] currentPatternUp)
+        {
+            int[,] retVal = new int[3, 3];
+            for(int i = 0; i < 3; i++)
+            {
+                for(int j = 0; j < 3; j++)
+                {
+                    retVal[i, j] = currentPatternUp[3 - j - 1, i];
+                }
+            }
+            return retVal;
+        }
+
+        public static void SetRandomPattern()
+        {
+            CurrentRandomPatternUp = new int[3, 3];
+            for(int i = 0; i < 3; i++)
+            {
+                for(int j = 0; j < 3; j++)
+                {
+                    CurrentRandomPatternUp[i, j] = rand.Next(0, 2);
+                }
+            }
+            CurrentRandomPatternUp = MakePatternValid(CurrentRandomPatternUp);
+        }
+        public static void SetNextRandomPattern()
+        {
+            NextRandomPatternUp = new int[3, 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    NextRandomPatternUp[i, j] = rand.Next(0, 2);
+                }
+            }
+            NextRandomPatternUp = MakePatternValid(NextRandomPatternUp);
+        }
+
+        private static int[,] MakePatternValid(int[,] pattern)
+        {
+            List<int[]> safeLocations = new List<int[]>();
+            bool firstOne = false;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if(pattern[i,j] == 1 && firstOne == false)
+                    {
+                        firstOne = true;
+                        safeLocations.AddRange(CheckPoint(i, j, pattern, safeLocations));
+                    }
+                    else if(pattern[i,j] == 1 && !safeLocations.Any(x => x.SequenceEqual(new int[] { i, j })))
+                    {
+                        pattern[i, j] = 0;
+                    }
+                }
+            }
+            return pattern;
+        }
+
+        private static IEnumerable<int[]> CheckPoint(int i, int j, int[,] pattern, List<int[]> safeLocations)
+        {
+            //List<int[]> tempSafeLocations = new List<int[]>();
+            if (safeLocations.Any(x => x.SequenceEqual(new int[] { i, j })))
+            {
+                //Returing safe locations wont work, make a new list
+                return new List<int[]>();
+            }
+            safeLocations.Add(new int[] { i, j });
+            if(i != 0)
+            {
+                if(pattern[i - 1, j] == 1 )
+                {
+                    safeLocations.AddRange(CheckPoint(i - 1, j, pattern, safeLocations));
+                }
+            }
+            if (j != 0)
+            {
+                if (pattern[i, j - 1] == 1)
+                {
+                    safeLocations.AddRange(CheckPoint(i, j - 1, pattern, safeLocations));
+                }
+            }
+            if (i != 2)
+            {
+                if (pattern[i + 1, j] == 1)
+                {
+                    safeLocations.AddRange(CheckPoint(i + 1, j, pattern, safeLocations));
+                }
+            }
+            if (j != 2)
+            {
+                if (pattern[i, j + 1] == 1)
+                {
+                    safeLocations.AddRange(CheckPoint(i, j + 1, pattern, safeLocations));
+                }
+            }
+            return safeLocations;
         }
     }
 }
